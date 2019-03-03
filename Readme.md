@@ -1,4 +1,4 @@
-# SSBM ENV
+# SSBM GYM
 
 OpenAI gym type environment for Super Smash Bros. Melee
 
