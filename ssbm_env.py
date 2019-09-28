@@ -6,51 +6,40 @@ Responsible for interfacing with Dolphin to interface with SSBM, and handles thi
 
 """
 
-import os
-import functools
-import enum
-import time
 
-import util, ssbm
-from default import *
-import state_manager, movie, dolphin
+import ssbm, state_manager, util, movie
+from dolphin import DolphinRunner, Player
 import memory_watcher as mw
 from state import *
-import menu_manager as mm
-from pad import Pad
-
-class Player(enum.Enum):
-  HUMAN = 1
-  AI    = 2
-  CPU   = 3
-
-  def is_human(self):
-    return self == Player.HUMAN
-  
-  def needs_pad(self):
-    return self != Player.HUMAN
-
-str_to_player = {p.name.lower(): p for p in Player}
+from menu_manager import *
+import os
+from pad import *
+import time
+import ctype_util as ct
+from numpy import random
+from default import *
+import functools
 
 class SSBMEnv(Default):
   _options = [
     Option('zmq', type=int, default=0, help="use zmq for memory watcher"),
     Option('tcp', type=int, default=0, help="use zmq over tcp for memory watcher and pipe input"),
-    Option('stage', type=str, default="final_destination", choices=movie.stages.keys(), help="which stage to play on"),
+  #  Option('stage', type=str, default="final_destination", choices=movie.stages.keys(), help="which stage to play on"),
     Option('start', type=int, default=1, help="start game in endless time mode"),
     Option('debug', type=int, default=0),
-  ] + [
-    Option('p%d' % i, type=str, choices=str_to_player.keys(), default='ai',
-        help="Player type in port %d.") for i in [1, 2]
-  ] + [
-    Option('char%d' % i, type=str, choices=mm.characters.keys(), default="falcon",
-        help="character for player %d" % i) for i in [1, 2]
-  ] + [
-    Option('cpu%d' % i, type=int, help="cpu level %d" % i) for i in [1, 2]
   ]
+  # ] + [
+  #   Option('p%d' % i, type=str, choices=['human', 'cpu', 'ai'], default='ai',
+  #       help="Player type in port %d.") for i in [1, 2]
+  # ] + [
+  #   Option('char%d' % i, type=str, choices=characters.keys(), default="falcon",
+  #       help="character for player %d" % i) for i in [1, 2]
+  # ] + [
+  #   Option('cpu%d' % i, type=int, help="cpu level %d" % i) for i in [1, 2]
+  # ]
   
   _members = [
-    ('dolphin', dolphin.DolphinRunner),
+    ('dolphin', DolphinRunner),
   ]
   
   def __init__(self, **kwargs):
@@ -64,23 +53,22 @@ class SSBMEnv(Default):
     # set up players
     self.pids = []
     self.players = {}
-    self.levels = {}
-    self.characters = {}
+    # self.levels = {}
+    # self.characters = {}
     for i in range(2):
       j = i + 1
-      cpu = getattr(self, 'cpu%d' % j)
-      self.levels[i] = cpu
-      if cpu:
-        player = Player.CPU
-      else:
-        player = str_to_player[getattr(self, 'p%d' % j)]
-        print(player)
-      
+    #   cpu = getattr(self, 'cpu%d' % j)
+    #   self.levels[i] = cpu
+    #   if cpu:
+    #     player = Player.CPU
+    #   else:
+    #     player = str_to_player[getattr(self, 'p%d' % j)]
+      player = getattr(self.dolphin, 'player%d' % j)
+      print(player)
       self.players[i] = player
-      
-      if player.needs_pad():
+      if player == 'ai':
         self.pids.append(i)
-        self.characters[i] = getattr(self, 'char%d' % j)
+    #   self.characters[i] = getattr(self, 'char%d' % j)
 
     self.state = ssbm.GameMemory()
     # track players 1 and 2 (pids 0 and 1)
@@ -95,37 +83,55 @@ class SSBMEnv(Default):
       mwType = mw.MemoryWatcherZMQ if self.zmq else mw.MemoryWatcher
       self.mw = mwType(path=self.user + '/MemoryWatcher/MemoryWatcher')
     
+    # pipe_dir = os.path.join(self.user, 'Pipes')
+    # print('Creating Pads at %s.' % pipe_dir)
+    # util.makedirs(pipe_dir)
+    
+    # pad_ids = self.pids
+    # if self.dolphin.netplay:
+    #   pad_ids = [0]
+    
+    # pipe_paths = [os.path.join(pipe_dir, 'p%d' % i) for i in pad_ids]
+    # print(pipe_paths)
+    # self.pads = [Pad(path, tcp=self.tcp) for path in pipe_paths]
+
+
+    # self.dolphin = dolphin.DolphinRunner(p1=self.p1, p2=self.p2, char1=self.char1, char2=self.char2, cpu1=self.cpu1, cpu2=self.cpu2)
+    # self.dolphin = dolphin.DolphinRunner(*kwargs)
+    self.dolphin_process = None
+    self.last_frame = 0
+
+
+  def reset(self):
+    if self.dolphin_process is not None:
+      self.close()
+      #self.dolphin_process.terminate()
+    self.init_stats()
+    self.state = ssbm.GameMemory()
+    print('Running dolphin.')
+    self.dolphin_process = self.dolphin()
+
+
     pipe_dir = os.path.join(self.user, 'Pipes')
     print('Creating Pads at %s.' % pipe_dir)
     util.makedirs(pipe_dir)
-    
+
     pad_ids = self.pids
     if self.dolphin.netplay:
       pad_ids = [0]
     
     pipe_paths = [os.path.join(pipe_dir, 'p%d' % i) for i in pad_ids]
+    print(pipe_paths)
     self.pads = [Pad(path, tcp=self.tcp) for path in pipe_paths]
 
-    self.init_stats()
-    
-    print('Running dolphin.')
-    self.dolphin_process = self.dolphin.run(self.players)
-
-    try:
-      #time.sleep(2) # wait for dolphin to start up
-      connect_pads = util.async_map(lambda pad: pad.connect(), self.pads)
-      connect_pads()  # blocks until dolphin is listening
-    except KeyboardInterrupt:
-      print("Pipes not initialized!")
-      return
     
     print("Pipes initialized.")
 
-    self.navigate_menus()
-    
     self.start_time = time.time()
 
+
   def close(self):
+    self.dolphin_process.terminate()
     self.dolphin_process.terminate()
     self.print_stats()
 
@@ -149,54 +155,6 @@ class SSBMEnv(Default):
     with open(os.path.join(path, 'Locations.txt'), 'w') as f:
       f.write('\n'.join(self.sm.locations()))
 
-  def navigate_menus(self):
-    pick_chars = []
-    
-    for pid, pad in zip(self.pids, self.pads):
-      pick_chars.append(mm.pick_char(pid, pad, self.characters[pid], self.levels[pid]))
-    
-    pick_chars = mm.Parallel(*pick_chars)
-        
-    actions = [pick_chars]
-    
-    if self.start:
-      enter_settings = mm.enter_settings(self.pids[0], self.pads[0])
-      
-      # sets the game mode and picks the stage
-      start_game = movie.Movie(movie.endless_netplay + movie.stages[self.stage], self.pads[0])
-      actions += [enter_settings, start_game]
-    
-    #actions.append(Wait(600))
-    
-    navigate_menus = mm.Sequential(*actions)
-    
-    self.update_state()
-    char_stages = [menu.value for menu in [Menu.Characters, Menu.Stages]]
-  
-    print("Navigating menus.")
-    while self.state.menu in char_stages:
-      self.mw.advance()
-      last_frame = self.state.frame
-      self.update_state()
-      if self.state.frame > last_frame:
-        navigate_menus.move(self.state)
-        
-        if navigate_menus.done():
-          for pid, pad in zip(self.pids, self.pads):
-            if self.characters[pid] == 'sheik':
-              pad.press_button(Button.A)
-    
-    print("setup finished")
-    print(self.state.menu, Menu.Game.value)
-    assert(self.state.menu == Menu.Game.value)
-    
-    # get rid of weird initial conditions
-    for _ in range(10):
-      self.mw.advance()
-      self.update_state()
-    
-    self.last_frame = self.state.frame
-    print(self.last_frame)
 
   def update_state(self):
     messages = self.mw.get_messages()
@@ -211,10 +169,19 @@ class SSBMEnv(Default):
       self.pads[0].release_button(button)
   
   def step(self, controllers):
+    for pid, pad in zip(self.pids, self.pads):
+      assert(self.players[pid] == 'ai')
+      pad.send_controller(controllers[pid])
     while self.state.frame == self.last_frame:
-      print(self.state.frame)
-      self.mw.advance()
-      self.update_state()
+      #print(self.state.frame)
+      try:
+        self.update_state()
+        self.mw.advance()
+      except Exception as e:
+        print('couldnt advance')
+        #self.mw.get_messages()
+      #print(self.state.frame, self.state.players[0].percent)
+
 
     self.last_frame = self.state.frame
 
@@ -238,3 +205,51 @@ class SSBMEnv(Default):
     self.last_frame = self.state.frame
     return self.state
     """
+
+  # def step(self, controllers):
+  #     # print("advance_frame")
+  #     last_frame = self.state.frame
+      
+  #     self.update_state()
+  #     # if self.menu == Menu.Game:
+  #     if True:
+  #       if self.game_frame < 10:
+  #         # let the slippi frame counter initialize
+  #         self.game_frame += 1
+  #         print(self.game_frame)
+  #         if self.game_frame == 10:
+  #           self.start_time = time.time()
+  #       elif self.state.frame > last_frame:
+  #         print(self.game_frame)
+  #         skipped_frames = self.state.frame - last_frame - 1
+  #         if skipped_frames > 0:
+  #             self.skip_frames += skipped_frames
+  #             print("Skipped frames ", skipped_frames)
+  #         self.total_frames += self.state.frame - last_frame
+  #         last_frame = self.state.frame
+
+  #         start = time.time()
+  #         self.make_action()
+  #         self.thinking_time += time.time() - start
+
+  #         if self.agent.verbose and self.state.frame % (15 * 60) == 0:
+  #             self.print_stats()
+  #     else:
+  #       self.make_action()
+
+  #     #time.sleep(0.05)
+  #     self.mw.advance()
+
+  # def make_action(self):
+  #   player = self.state.players[1]
+  #   print('a: ', player)
+  #   if True:
+  #     self.game_frame += 1
+      
+  #     if self.game_frame % 60 == 0:
+  #       print('action_frame', self.state.players[0].action_frame)
+  #       items = list(util.deepItems(ct.toDict(self.state.players)))
+  #       print('max value', max(items, key=lambda x: abs(x[1])))
+      
+  #     if self.game_frame <= 120:
+  #       return # wait for game to properly load
