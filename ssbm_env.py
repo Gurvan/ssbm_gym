@@ -185,7 +185,7 @@ class SSBMEnv(Default):
       try:
         self.mw.advance()
         self.update_state()
-      except Exception as e:
+      except:
         print('couldnt advance')
         #self.mw.get_messages()
       #print(self.state.frame, self.state.players[0].percent)
