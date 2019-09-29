@@ -45,6 +45,9 @@ class SSBMEnv(Default):
   def __init__(self, **kwargs):
     Default.__init__(self, **kwargs)
 
+    # self.action_space = [a[0].real_controller for a in ssbm.actionTypes['diagonal'].actions]
+    self.action_space = ActionSpace()
+
     self.toggle = 0
 
     #self.user = os.path.expanduser(self.user)
@@ -124,14 +127,19 @@ class SSBMEnv(Default):
     print(pipe_paths)
     self.pads = [Pad(path, tcp=self.tcp) for path in pipe_paths]
 
-    
     print("Pipes initialized.")
 
     self.start_time = time.time()
+    self.update_state()
+    return self.state
 
 
   def close(self):
     self.dolphin_process.terminate()
+    try:
+      self.mw.advance()
+    except:
+      pass
     self.dolphin_process.terminate()
     self.print_stats()
 
@@ -175,15 +183,15 @@ class SSBMEnv(Default):
     while self.state.frame == self.last_frame:
       #print(self.state.frame)
       try:
-        self.update_state()
         self.mw.advance()
+        self.update_state()
       except Exception as e:
         print('couldnt advance')
         #self.mw.get_messages()
       #print(self.state.frame, self.state.players[0].percent)
 
-
     self.last_frame = self.state.frame
+    return self.state
 
     # TODO: if not in game, wait
     """
@@ -206,50 +214,20 @@ class SSBMEnv(Default):
     return self.state
     """
 
-  # def step(self, controllers):
-  #     # print("advance_frame")
-  #     last_frame = self.state.frame
-      
-  #     self.update_state()
-  #     # if self.menu == Menu.Game:
-  #     if True:
-  #       if self.game_frame < 10:
-  #         # let the slippi frame counter initialize
-  #         self.game_frame += 1
-  #         print(self.game_frame)
-  #         if self.game_frame == 10:
-  #           self.start_time = time.time()
-  #       elif self.state.frame > last_frame:
-  #         print(self.game_frame)
-  #         skipped_frames = self.state.frame - last_frame - 1
-  #         if skipped_frames > 0:
-  #             self.skip_frames += skipped_frames
-  #             print("Skipped frames ", skipped_frames)
-  #         self.total_frames += self.state.frame - last_frame
-  #         last_frame = self.state.frame
 
-  #         start = time.time()
-  #         self.make_action()
-  #         self.thinking_time += time.time() - start
 
-  #         if self.agent.verbose and self.state.frame % (15 * 60) == 0:
-  #             self.print_stats()
-  #     else:
-  #       self.make_action()
+class ActionSpace():
+  def __init__(self):
+    self.actions = [a[0].real_controller for a in ssbm.actionTypes['diagonal'].actions]
+    self.n = len(self.actions)
 
-  #     #time.sleep(0.05)
-  #     self.mw.advance()
+  def __repr__(self):
+    return "Discrete(%d)" % self.n
 
-  # def make_action(self):
-  #   player = self.state.players[1]
-  #   print('a: ', player)
-  #   if True:
-  #     self.game_frame += 1
-      
-  #     if self.game_frame % 60 == 0:
-  #       print('action_frame', self.state.players[0].action_frame)
-  #       items = list(util.deepItems(ct.toDict(self.state.players)))
-  #       print('max value', max(items, key=lambda x: abs(x[1])))
-      
-  #     if self.game_frame <= 120:
-  #       return # wait for game to properly load
+  def sample(self):
+    import random
+    return random.choice(self.actions)
+
+  def from_index(self, n):
+    return self.actions[n]
+

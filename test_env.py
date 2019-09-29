@@ -18,11 +18,8 @@ env = SSBMEnv(**args.__dict__)
 env.reset()
 
 
+for i in range(1000):
+    env.step(None)
 
-# while 1:
-#     env.step(None)
-
-from IPython import embed
-embed()
-#env.close()
+env.close()
 

@@ -258,7 +258,7 @@ class DolphinRunner(Default):
       self.dump_frames = True
 
     with open(configDir + '/GCPadNew.ini', 'w') as f:
-      f.write(generateGCPadNew([0] if self.netplay else self.cpus, self.pipe_count))
+      f.write(generateGCPadNew([0] if self.netplay else [i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], self.pipe_count))
 
     with open(configDir + '/Dolphin.ini', 'w') as f:
       config_args = dict(
