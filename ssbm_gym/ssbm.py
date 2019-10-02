@@ -198,7 +198,7 @@ class RepeatController(object):
 repeat_controller = RepeatController()
 
 axis_granularity = 3
-axis_positions = [i/(axis_granularity-1) for i in range(axis_granularity-1)]#np.linspace(0, 1, axis_granularity)
+axis_positions = [i/(axis_granularity-1) for i in range(axis_granularity)]#np.linspace(0, 1, axis_granularity)
 diagonal_sticks = list(itertools.product(axis_positions, repeat=2))
 diagonal_controllers = [SimpleController.init(*args) for args in itertools.product(SimpleButton, diagonal_sticks)]
 

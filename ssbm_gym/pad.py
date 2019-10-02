@@ -53,7 +53,7 @@ class Pad:
           self.socket.bind(address)
         else:
           os.mkfifo(path)
-          self.pipe = open(path, 'w', buffering=2)
+          self.pipe = open(path, 'w', buffering=1)
           print("fifo opened")
         
         self.message = ""
