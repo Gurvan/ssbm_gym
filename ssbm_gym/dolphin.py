@@ -51,18 +51,6 @@ def generateGCPadNew(pids=[1], pipe_count=True):
 with open(datapath + '/Dolphin.ini', 'r') as f:
   dolphin_ini = f.read()
 
-gfx_ini = """
-[Settings]
-DumpFramesAsImages = {dump_ppm}
-DumpFramesToPPM = {dump_ppm}
-DumpFramesCounter = False
-Crop = True
-DumpFormat = {dump_format}
-DumpCodec = {dump_codec}
-DumpEncoder = {dump_encoder}
-DumpPath = {dump_path}
-"""
-
 gale01_ini = """
 [Gecko]
 $Boot To Match [UnclePunch]
@@ -148,17 +136,6 @@ $Flash White on Successful L-Cancel
 #$Flash Red on Unsuccessful L-Cancel
 
 
-gale01_ini_fm = """
-[Core]
-CPUThread = True
-GPUDeterminismMode = fake-completion
-PollingMethod = OnSIRead
-[Gecko_Enabled]
-$Faster Melee Netplay Settings
-$Lag Reduction
-$Game Music ON
-"""
-
 
 class Player(enum.Enum):
   HUMAN = 0
@@ -174,36 +151,18 @@ str_to_player = {p.name.lower(): p for p in Player}
 
 class DolphinRunner(Default):
   _options = [
-    Option('gfx', type=str, default="Null", help="graphics backend"),
-    Option('dual_core', type=int, default=1, help="Use separate gpu and cpu threads."),
-    Option('cpus', type=int, nargs='+', default=[1], help="Which players are cpu-controlled."),
-    Option('audio', type=str, default="No audio backend", help="audio backend"),
-    Option('speed', type=int, default=0, help='framerate - 1=normal, 0=unlimited'),
-    Option('dump_frames', action="store_true", default=False, help="dump frames from dolphin to disk"),
-    Option('dump_ppm', action="store_true", help="dump frames as ppm images"),
-    Option('pipe_count', type=int, default=0, help="Count pipes alphabetically. Turn on for older dolphins."),
-    Option('netplay', type=str),
-    Option('direct', action="store_true", default=False, help="netplay direct connect"),
+    # Option('gfx', type=str, default="Null", help="graphics backend"),
+    # Option('audio', type=str, default="No audio backend", help="audio backend"),
+    Option('speed', type=int, default=1, help='framerate - 1=normal, 0=unlimited'),
+    # Option('pipe_count', type=int, default=0, help="Count pipes alphabetically. Turn on for older dolphins."),
     Option('fullscreen', action="store_true", default=False, help="run dolphin with fullscreen"),
-    Option('iso_path', type=str, default="", help="directory where you keep your isos"),
-    Option('human', action="store_true", help="set p1 to human"),
-    Option('fm', action="store_true", help="set up config for Faster Melee"),
-    Option('dump_format', type=str, default='mp4'),
-    Option('dump_codec', type=str, default='h264'),
-    Option('dump_encoder', type=str, default=''),
-    Option('dump_path', type=str, default=''),
     Option('lcancel_flash', action="store_true", help="flash on lcancel"),
-    Option('speedhack', action="store_true", help="enable speed hack"),
+    # Option('speedhack', action="store_true", help="enable speed hack"),
 
     Option('exe', type=str, default=None, help="dolphin executable"),
     Option('user', type=str, help="path to dolphin user directory"),
     Option('iso', type=str, default=None, help="path to SSBM iso"),
-    Option('movie', type=str, help="path to dolphin movie file to play at startup"),
-    Option('setup', type=int, default=1, help="setup custom dolphin directory"),
-    Option('gui', action="store_true", default=False, help="run with graphics and sound at normal speed"),
-    Option('mute', action="store_true", default=False, help="mute game audio"),
-    Option('windows', action='store_true', help="set defaults for windows"),
-    Option('netplay', type=str, help="join traversal server"),
+    Option('render', action="store_true", default=False, help="run with graphics and sound at normal speed"),
     
     Option('stage', type=str, choices=gen_code.stage_ids.keys(),
            default='final_destination', help='stage'),
@@ -230,72 +189,44 @@ class DolphinRunner(Default):
     if self.iso is None:
       dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
       self.iso = os.path.join(dir_path[:-8], "ISOs", "SSBM.iso")
-    #if self.netplay: # need gui version to netplay
-    #  index = self.exe.rfind('dolphin-emu') + len('dolphin-emu')
-    #  self.exe = self.exe[:index]
+
     if self.exe is None:
       dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
       self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "dolphin-emu-nogui")
     
-    if self.gui or self.windows:
-      # switch from headless to gui
-      if self.exe.endswith("-headless"):
-        #self.exe = self.exe[:-9]
-        self.exe = self.exe[:-9] + "-nogui"
-      
-      # Note: newer dolphins use 'DX11', but win-mw is an old fork.
+    self.audio = 'No audio backend'  # 'Pulse'
+    if self.render:      
       self.speed = 1
-      self.gfx = 'D3D' if self.windows else 'OGL'
-      
-      if self.mute:
-        self.audio = 'No audio backend'
-      else:
-        self.audio = 'XAudio2' if self.windows else 'Pulse'
+      self.gfx = 'OGL'
+    else:
+      self.gfx = 'Null'
 
-    if self.setup:
-      self.setup_user_dir()
+    self.setup_user_dir()
 
   def setup_user_dir(self):
     user = self.user
     configDir = user + '/Config'
     util.makedirs(configDir)
-    
-    if self.dump_ppm:
-      self.dump_frames = True
 
     with open(configDir + '/GCPadNew.ini', 'w') as f:
-      print("generate pad: ", [i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'])
-      f.write(generateGCPadNew([0] if self.netplay else [i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], self.pipe_count))
+      # print("generate pad: ", [i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'])
+      f.write(generateGCPadNew([i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], 0))
 
     with open(configDir + '/Dolphin.ini', 'w') as f:
       config_args = dict(
         user=user,
         gfx=self.gfx,
-        cpu_thread=bool(self.dual_core),
-        dump_frames=self.dump_frames,
         audio=self.audio,
         speed=self.speed,
-        netplay=self.netplay,
-        traversal='direct' if self.direct else 'traversal',
         fullscreen=self.fullscreen,
-        iso_path=self.iso_path,
-        port1 = 12 if self.human else 6,
+        port1 = 12 if self.player1 == 'human' else 6,
+        port2 = 12 if self.player2 == 'human' else 6,
       )
       f.write(dolphin_ini.format(**config_args))
-    
-    with open(configDir + '/GFX.ini', 'w') as f:
-      f.write(gfx_ini.format(
-        dump_ppm=self.dump_ppm,
-        dump_path=self.dump_path,
-        dump_codec=self.dump_codec,
-        dump_encoder=self.dump_encoder,
-        dump_format=self.dump_format))
 
     gameSettings = user + '/GameSettings'
     util.makedirs(gameSettings)
-    with open(gameSettings + '/GALE01.ini', 'w') as f:
-      assert not self.fm  # only custom exi build is supported
-      
+    with open(gameSettings + '/GALE01.ini', 'w') as f:      
       keys = ['stage', 'char1', 'char2', 'cpu1', 'cpu2']
       kwargs = {k: getattr(self, k) for k in keys}
       
@@ -303,11 +234,11 @@ class DolphinRunner(Default):
         k = 'player%d' % i
         kwargs[k] = str_to_player[getattr(self, k)].player_status()
 
-      print(kwargs)
+      # print(kwargs)
       match_setup_code = gen_code.setup_match_code(**kwargs)
       
       speed_hack = ''
-      if self.speedhack:
+      if not self.render:
         speed_hack = '$Speed Hack'
         if self.gfx != 'Null':
           speed_hack += ' Render'
@@ -316,18 +247,16 @@ class DolphinRunner(Default):
         ini += lcancel_ini
       f.write(ini)
 
-    util.makedirs(user + '/Dump/Frames')
-
   def __call__(self):
     args = [self.exe, "--user", self.user]
-    if not self.netplay:
-      args += ["--exec", self.iso]
-      if self.gfx == 'Null':
-        args += ['--platform', 'headless']
-    if self.movie is not None:
-      args += ["--movie", self.movie]
-    
-    print(args)
+    args += ["--exec", self.iso]
+    if not self.render:
+      args += ['--platform', 'headless']
+    else:
+      args += ['--platform', 'x11']
+
+
+    # print(args)
     process = subprocess.Popen(args)
     
     return process

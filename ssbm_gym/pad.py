@@ -52,9 +52,11 @@ class Pad:
           print("Binding pad %s to address %s" % (path, address))
           self.socket.bind(address)
         else:
-          os.mkfifo(path)
+          try:
+            os.mkfifo(path)
+          except FileExistsError:
+            pass
           self.pipe = open(path, 'w', buffering=1)
-          print("fifo opened")
         
         self.message = ""
 
@@ -65,7 +67,6 @@ class Pad:
     
     def write(self, command, buffering=False):
         self.message += command + '\n'
-        
         if not buffering:
             self.flush()
     
