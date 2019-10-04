@@ -195,9 +195,9 @@ class DolphinRunner(Default):
     Option('lcancel_flash', action="store_true", help="flash on lcancel"),
     Option('speedhack', action="store_true", help="enable speed hack"),
 
-    Option('exe', type=str, default='dolphin-emu-headless', help="dolphin executable"),
+    Option('exe', type=str, default=None, help="dolphin executable"),
     Option('user', type=str, help="path to dolphin user directory"),
-    Option('iso', type=str, default="SSBM.iso", help="path to SSBM iso"),
+    Option('iso', type=str, default=None, help="path to SSBM iso"),
     Option('movie', type=str, help="path to dolphin movie file to play at startup"),
     Option('setup', type=int, default=1, help="setup custom dolphin directory"),
     Option('gui', action="store_true", default=False, help="run with graphics and sound at normal speed"),
@@ -226,10 +226,16 @@ class DolphinRunner(Default):
       self.user = tempfile.mkdtemp() + '/'
     
     print("Dolphin user dir", self.user)
-    
+
+    if self.iso is None:
+      dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
+      self.iso = os.path.join(dir_path[:-8], "ISOs", "SSBM.iso")
     #if self.netplay: # need gui version to netplay
     #  index = self.exe.rfind('dolphin-emu') + len('dolphin-emu')
     #  self.exe = self.exe[:index]
+    if self.exe is None:
+      dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
+      self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "dolphin-emu-nogui")
     
     if self.gui or self.windows:
       # switch from headless to gui

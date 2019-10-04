@@ -24,6 +24,9 @@ This shows how to define an action space, compute a reward, and so on so you can
 
 The structure of observations monitored in the game and the definition of actions are visible in `ssbm.py` (it's a bit messy at the moment).
 
+## Tips
+
+You can use `pkill dolphin` __twice__ to kill any instance of Dolphin that didn't close properly.
 
 ## Compile Dolphin on Ubuntu 18.04
 
@@ -45,14 +48,14 @@ Go inside the directory you just cloned and execute the following steps,
 2. `cd Build`
 3. `cmake ..`
 4. `make` (you can use the argument `-j N`, where N is the number of CPU cores you want to assign to speed up the compilation)
-5. `ln -s ../../Data/Sys {ssbm_gym directory}/dolphin-exe/`
-6. `ln -s Binaries/dolphin-emu-nogui {ssbm_gym directory}/dolphin-exe/`
+5. `ln -s ../Data/Sys {ssbm_gym directory}/dolphin-exe/`
+6. `ln -s $PWD/Binaries/dolphin-emu-nogui {ssbm_gym directory}/dolphin-exe/`
 
 This compiles and links the headless version of Dolphin use for training an agent. If you want to be able to render and play the game, you can also compile the regular version of Dolphin with, from the Build directory,
 
 1. `cmake .. -DENABLE_HEADLESS=false`
 2. `make`
-3. `ln -s Binaries/dolphin-emu{ssbm_gym directory}/dolphin-exe/`
+3. `ln -s $PWD/Binaries/dolphin-emu{ssbm_gym directory}/dolphin-exe/`
 
 
 ## TODO

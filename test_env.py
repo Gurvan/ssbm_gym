@@ -1,12 +1,12 @@
 from ssbm_gym import SSBMEnv
 
 options = dict(
-    iso="/home/gurvan/ISOs/Super Smash Bros. Melee (USA) (En,Ja) (v1.02).iso",
-    exe="dolphin-emu-nogui",
-    zmq=1,
+    # iso="/home/gurvan/ISOs/Super Smash Bros. Melee (USA) (En,Ja) (v1.02).iso",
+    # exe="dolphin-emu-nogui",
+    # zmq=1,
     gfx='OGL',  # gfx='Null' to start Dolphin headless
-    speed=1,
-    speedhack=True,
+    # speed=1,
+    # speedhack=True # Enable this for major speedup in emulation
     player1='ai',
     player2='cpu',
     char1='fox',
