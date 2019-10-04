@@ -60,8 +60,8 @@ This compiles and links the headless version of Dolphin use for training an agen
 
 ## TODO
 
+- [ ] Credit all the people that made this possible
 - [ ] Document all the options
 - [ ] Make and test build instruction for other OS
 - [ ] Clean most of the code to make it as simple as possible (since the basis of this work is vladfi1/phillip, there is still a lot of stuff that is not used and can be removed)
 - [ ] Make an example for self-play environment
-
