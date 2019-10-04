@@ -57,7 +57,6 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         #'sample': ['package_data.dat'],
-        'phillip': ['data/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
