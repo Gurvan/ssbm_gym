@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Custom
+
+dolphin-exe/dolphin*
+ISOs/*
+!*/.gitkeep
