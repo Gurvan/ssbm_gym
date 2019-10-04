@@ -48,7 +48,7 @@ Go inside the directory you just cloned and execute the following steps,
 2. `cd Build`
 3. `cmake ..`
 4. `make` (you can use the argument `-j N`, where N is the number of CPU cores you want to assign to speed up the compilation)
-5. `ln -s ../Data/Sys Binaries/`
+5. `cp -R ../Data/Sys Binaries/`
 6. `ln -s $PWD/Binaries/dolphin-emu-nogui {ssbm_gym directory}/dolphin-exe/`
 
 This compiles and links the headless version of Dolphin use for training an agent. If you want to be able to render and play the game, you can also compile the regular version of Dolphin with, from the Build directory,
