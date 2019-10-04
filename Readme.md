@@ -53,7 +53,7 @@ Go inside the directory you just cloned and execute the following steps,
 
 This compiles and links the headless version of Dolphin use for training an agent. If you want to be able to render and play the game, you can also compile the regular version of Dolphin with, from the Build directory,
 
-1. `cmake .. -DENABLE_HEADLESS=false`
+1. `cmake .. -DENABLE_HEADLESS=false -DENABLE_NOGUI=false`
 2. `make`
 3. `ln -s $PWD/Binaries/dolphin-emu {ssbm_gym directory}/dolphin-exe/`
 
