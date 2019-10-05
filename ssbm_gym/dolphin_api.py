@@ -104,7 +104,7 @@ class DolphinAPI(Default):
   def write_locations(self):
     path = os.path.join(self.dolphin.user, 'MemoryWatcher')
     util.makedirs(path)
-    print('Writing locations to:', path)
+    # print('Writing locations to:', path)
     with open(os.path.join(path, 'Locations.txt'), 'w') as f:
       f.write('\n'.join(self.sm.locations()))
 

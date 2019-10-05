@@ -184,7 +184,7 @@ class DolphinRunner(Default):
       import tempfile
       self.user = tempfile.mkdtemp() + '/'
     
-    print("Dolphin user dir", self.user)
+    # print("Dolphin user dir", self.user)
 
     if self.iso is None:
       dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
@@ -257,7 +257,7 @@ class DolphinRunner(Default):
 
 
     # print(args)
-    process = subprocess.Popen(args)
+    process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     return process
 
