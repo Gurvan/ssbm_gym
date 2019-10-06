@@ -1,7 +1,10 @@
 from ssbm_gym import SSBMEnv
+import atexit
+import platform
+import random
+import time
 
 options = dict(
-    # iso="/home/gurvan/ISOs/Super Smash Bros. Melee (USA) (En,Ja) (v1.02).iso",
     render=True,
     player1='ai',
     player2='cpu',
@@ -11,13 +14,20 @@ options = dict(
     stage='battlefield',
 )
 
+if platform.system() == 'Windows':
+    options['windows'] = True
+
+
 env = SSBMEnv(options=options)
-
 obs = env.reset()
+atexit.register(env.close)
+
+t = time.time()
 for i in range(1000):
-    action = env.action_space.sample()
+    action = random.randint(0, env.action_space.n - 1)
     obs, reward, done, infos = env.step(action)
-    print("Player 1 action state: ", env.obs.players[0].action_state, "\t\tPlayer 2 actions_state:", env.obs.players[1].action_state)
-
-env.close()
-
+    try:
+        print("FPS:", round(1/(time.time() - t)), "\tPlayer 1 action state: ", env.obs.players[0].action_state, "\tPlayer 2 actions_state:", env.obs.players[1].action_state)
+    except:
+        pass
+    t = time.time()

@@ -105,7 +105,6 @@ venv.bak/
 
 # Custom
 
-dolphin-exe/dolphin*
-dolphin-exe/Sys
+dolphin-exe/*
 ISOs/*
 !*/.gitkeep

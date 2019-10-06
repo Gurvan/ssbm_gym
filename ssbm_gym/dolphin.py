@@ -163,6 +163,7 @@ class DolphinRunner(Default):
     Option('user', type=str, help="path to dolphin user directory"),
     Option('iso', type=str, default=None, help="path to SSBM iso"),
     Option('render', action="store_true", default=False, help="run with graphics and sound at normal speed"),
+    Option('windows', action="store_true", default="False", help="to be define if the plateform is Windows"),
     
     Option('stage', type=str, choices=gen_code.stage_ids.keys(),
            default='final_destination', help='stage'),
@@ -192,7 +193,10 @@ class DolphinRunner(Default):
 
     if self.exe is None:
       dir_path = os.path.dirname(os.path.realpath(__file__)[:-1])
-      self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "dolphin-emu-nogui")
+      if self.windows:
+        self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "Dolphin.exe")
+      else:
+        self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "dolphin-emu-nogui")
     
     self.audio = 'No audio backend'  # 'Pulse'
     if self.render:      
@@ -250,10 +254,13 @@ class DolphinRunner(Default):
   def __call__(self):
     args = [self.exe, "--user", self.user]
     args += ["--exec", self.iso]
-    if not self.render:
-      args += ['--platform', 'headless']
+    if self.windows:
+      args += ["--batch"]
     else:
-      args += ['--platform', 'x11']
+      if not self.render:
+        args += ["--platform", "headless"]
+      else:
+        args += ["--platform", "x11"]
 
 
     # print(args)

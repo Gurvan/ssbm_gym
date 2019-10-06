@@ -10,9 +10,12 @@ You need Python 3 for this to work (use pip or pip3 depending on your setup).
 
 `pip install -e .`
 
-Then also you need to build a specific Dolphin executable from the sources located here https://github.com/Gurvan/dolphin (see instructions below).
+For Linux also you need to build a specific Dolphin executable from the sources located here https://github.com/Gurvan/dolphin (see instructions below).
 The compilation has only be tested on Ubuntu 18.04 at the moment.
 It should also work on Ubuntu 16.
+
+For Windows, you should download this [compiled version of Dolphin](https://github.com/vladfi1/dolphin/releases/download/v5.2-alpha/win-mw-push.zip), and put the content of the x64 folder inside `dolphin-exe`.
+Windows is supported only for playing or visualizing a bot, it is not recommended for training.
 
 You also need an ISO of Super Smash Bros. Melee NTSC v1.02 that you put or link in the ISOs folder. The default name should be SSBM.iso
 
@@ -62,6 +65,6 @@ This compiles and links the headless version of Dolphin use for training an agen
 
 - [ ] Credit all the people that made this possible
 - [ ] Document all the options
-- [ ] Make and test build instruction for other OS
+- [x] Make and test build instruction for other OS
 - [ ] Clean most of the code to make it as simple as possible (since the basis of this work is vladfi1/phillip, there is still a lot of stuff that is not used and can be removed)
 - [ ] Make an example for self-play environment

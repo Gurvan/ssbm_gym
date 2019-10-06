@@ -41,7 +41,7 @@ class BaseEnv():
         if self.obs is not None:
             self.prev_obs = deepcopy(self.obs)
         
-        obs = self.api.step([action])
+        obs = self.api.step([self.action_space.from_index(action)])
         self.obs = obs
         reward = self.compute_reward()
         done = self.is_terminal()

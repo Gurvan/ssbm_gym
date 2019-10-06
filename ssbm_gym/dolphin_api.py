@@ -23,7 +23,7 @@ import functools
 class DolphinAPI(Default):
   _options = [
     Option('zmq', type=int, default=1, help="use zmq for memory watcher"),
-    # Option('tcp', type=int, default=0, help="use zmq over tcp for memory watcher and pipe input"),
+    Option('windows', action="store_true", default="False", help="to be define if the plateform is Windows"),
     # Option('start', type=int, default=1, help="start game in endless time mode"),
     # Option('debug', type=int, default=0),
   ]
@@ -55,8 +55,11 @@ class DolphinAPI(Default):
     self.write_locations()
     
     # print('Creating MemoryWatcher.')
-    mwType = mw.MemoryWatcherZMQ if self.zmq else mw.MemoryWatcher
-    self.mw = mwType(path=self.user + '/MemoryWatcher/MemoryWatcher')
+    if self.windows:
+      self.mw = mw.MemoryWatcherZMQ(port=5555)
+    else:
+      mwType = mw.MemoryWatcherZMQ if self.zmq else mw.MemoryWatcher
+      self.mw = mwType(path=self.user + '/MemoryWatcher/MemoryWatcher')
 
     self.dolphin_process = None
     self.last_frame = 0
@@ -77,7 +80,7 @@ class DolphinAPI(Default):
 
     pad_ids = self.pids
     pipe_paths = [os.path.join(pipe_dir, 'p%d' % i) for i in pad_ids]
-    self.pads = [Pad(path) for path in pipe_paths]
+    self.pads = [Pad(path, tcp=self.windows) for path in pipe_paths]
 
     # print("Pipes initialized.")
 
