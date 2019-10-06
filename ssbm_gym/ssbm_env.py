@@ -35,7 +35,8 @@ class BaseEnv():
         return self.obs.frame >= self.frame_limit
 
     def reset(self):
-        return self.embed_obs(self.api.reset())
+        self.obs = self.api.reset()
+        return self.embed_obs(self.obs)
 
     def step(self, action):
         if self.obs is not None:
