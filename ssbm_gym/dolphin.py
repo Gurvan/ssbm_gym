@@ -163,7 +163,7 @@ class DolphinRunner(Default):
     Option('user', type=str, help="path to dolphin user directory"),
     Option('iso', type=str, default=None, help="path to SSBM iso"),
     Option('render', action="store_true", default=False, help="run with graphics and sound at normal speed"),
-    Option('windows', action="store_true", default="False", help="to be define if the plateform is Windows"),
+    Option('windows', action="store_true", default=False, help="to be define if the plateform is Windows"),
     
     Option('stage', type=str, choices=gen_code.stage_ids.keys(),
            default='final_destination', help='stage'),
@@ -199,7 +199,7 @@ class DolphinRunner(Default):
         self.exe = os.path.join(dir_path[:-8], "dolphin-exe", "dolphin-emu-nogui")
     
     self.audio = 'No audio backend'  # 'Pulse'
-    if self.render:      
+    if self.render:
       self.speed = 1
       self.gfx = 'OGL'
     else:

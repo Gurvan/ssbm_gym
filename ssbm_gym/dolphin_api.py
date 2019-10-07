@@ -23,7 +23,7 @@ import functools
 class DolphinAPI(Default):
   _options = [
     Option('zmq', type=int, default=1, help="use zmq for memory watcher"),
-    Option('windows', action="store_true", default="False", help="to be define if the plateform is Windows"),
+    Option('windows', action="store_true", default=False, help="to be define if the plateform is Windows"),
     # Option('start', type=int, default=1, help="start game in endless time mode"),
     # Option('debug', type=int, default=0),
   ]
