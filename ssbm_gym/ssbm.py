@@ -50,8 +50,8 @@ class RealControllerState(Structure):
     ('button_R', c_bool),
     ('button_START', c_bool),
 
-    ('trigger_L', c_float),
-    ('trigger_R', c_float),
+    ('analog_L', c_float),
+    ('analog_R', c_float),
 
     ('stick_MAIN', Stick),
     ('stick_C', Stick),
