@@ -70,6 +70,10 @@ class DolphinAPI(Default):
 
     pad_ids = self.pids
     pipe_paths = [os.path.join(pipe_dir, 'p%d' % i) for i in pad_ids]
+<<<<<<< HEAD
+=======
+    # self.pads = [Pad(path, tcp=True) for path in pipe_paths]
+>>>>>>> 38f8a5329c8ad57e0f21dddc3ec2e6e70a50168c
     makePad = functools.partial(Pad, tcp=self.windows)
     self.get_pads = util.async_map(makePad, pipe_paths)
 
@@ -79,10 +83,23 @@ class DolphinAPI(Default):
       self.close()
       #self.dolphin_process.terminate()
     self.state = ssbm.GameMemory()
+<<<<<<< HEAD
+=======
+
+    # pipe_dir = os.path.join(self.user, 'Pipes')
+    # # print('Creating Pads at %s.' % pipe_dir)
+    # util.makedirs(pipe_dir)
+>>>>>>> 38f8a5329c8ad57e0f21dddc3ec2e6e70a50168c
     
     # print('Running dolphin.')
     self.dolphin_process = self.dolphin()
 
+<<<<<<< HEAD
+=======
+    # pad_ids = self.pids
+    # pipe_paths = [os.path.join(pipe_dir, 'p%d' % i) for i in pad_ids]
+    # self.pads = [Pad(path, tcp=True) for path in pipe_paths]
+>>>>>>> 38f8a5329c8ad57e0f21dddc3ec2e6e70a50168c
     self.pads = self.get_pads()
 
     # print("Pipes initialized.")
