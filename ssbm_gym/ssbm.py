@@ -29,6 +29,9 @@ class Stick(Structure):
   def reset(self):
     self.x = 0.5
     self.y = 0.5
+
+  def __sub__(self, other):
+    return 2 * (self.x - other.x), 2 * (self.y - other.y)
   
   @classmethod
   def polar(cls, theta, r=1.):
@@ -71,6 +74,18 @@ class RealControllerState(Structure):
 
     self.stick_MAIN.reset()
     self.stick_C.reset()
+
+  def __sub__(self, other):
+    return (self.button_A - other.button_A,
+    self.button_B - other.button_B,
+    self.button_X - other.button_X,
+    self.button_Y - other.button_Y,
+    self.button_L - other.button_L,
+    self.button_R - other.button_R,
+    self.analog_L - other.analog_L,
+    self.analog_R - other.analog_R,
+    *(self.stick_MAIN - other.stick_MAIN), 
+    *(self.stick_C - other.stick_C))
   
 RealControllerState.neutral = RealControllerState()
 
@@ -100,6 +115,7 @@ class PlayerMemory(Structure):
     ('speed_x_attack', c_float),
     ('speed_y_attack', c_float),
     ('shield_size', c_float),
+    ('lightshield_amount', c_float),
 
     ('cursor_x', c_float),
     ('cursor_y', c_float),
