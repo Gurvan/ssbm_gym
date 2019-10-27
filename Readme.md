@@ -27,6 +27,23 @@ This shows how to define an action space, compute a reward, and so on so you can
 
 The structure of observations monitored in the game and the definition of actions are visible in `ssbm.py` (it's a bit messy at the moment).
 
+## Options
+
+Here is a documentation of the different options.
+
+- exe: string, specifies wich dolphin executable to use (should be good by default if you followed the installation guide).
+- iso: string, what melee iso to use. Useful if you want to use a 20XX iso.
+- render: boolean, if True, show game window and set the fps as 60.
+- windows: boolean, required if you use the program on windows.
+- stage: string, what stage to be played on. ['final_destination', 'battlefield'] have been tested, the others stages should work to (you can look in ssbm_gym/gen_code.py for a list).
+- player1: string, player1 type. ['ai', 'human', 'cpu']. 'ai' allows to send command through env.step, 'human' allows to play with a controller on the respective port, 'cpu' is game cpu.
+- player2: string, player1 type. ['ai', 'human', 'cpu']. 'ai' allows to send command through env.step, 'human' allows to play with a controller on the respective port, 'cpu' is game cpu.
+-char1: string, player1 character. You can find the list in ssbm_gym/gen_code.py.
+-char2: string, player2 character. You can find the list in ssbm_gym/gen_code.py.
+-cpu1: int, player1 cpu level, if player1 is set to 'cpu'. [1-9]
+-cpu2: int, player2 cpu level, if player2 is set to 'cpu'. [1-9]
+
+
 ## Tips
 
 You can use `pkill dolphin` __twice__ to kill any instance of Dolphin that didn't close properly.
@@ -63,8 +80,20 @@ This compiles and links the headless version of Dolphin use for training an agen
 
 ## TODO
 
-- [ ] Credit all the people that made this possible
-- [ ] Document all the options
+- [x] Credit all the people that made this possible
+- [x] Document all the options
 - [x] Make and test build instruction for other OS
 - [ ] Clean most of the code to make it as simple as possible (since the basis of this work is vladfi1/phillip, there is still a lot of stuff that is not used and can be removed)
-- [ ] Make an example for self-play environment
+- [x] Make an example for self-play environment
+
+## Issues
+
+- Sometimes Dolphin doesn't shut down properly, especially when a keyboard interrupt occures.
+
+## Credits
+
+- [vladfi1/xpilot](https://github.com/vladfi1/) for [phillip](https://github.com/vladfi1/phillip), the main basis of this work and the [zmq version of Dolphin](https://github.com/vladfi1/dolphin/tree/new-zmq-exi).
+- UnclePunch, tauKhan, Savestate, for most of the gecko codes codes and melee knowledge.
+- Fizzi, and the people mentioned above for [Project Slippi](https://github.com/project-slippi)
+- [Dolphin emulator](https://github.com/dolphin-emu)
+- ... probably missing a lot of people, tell me!
