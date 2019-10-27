@@ -41,6 +41,27 @@ class GoHighEnv(BaseEnv):
 
 
 
+class SelfPlayEnv(GoHighEnv):
+    def __init__(self, **kwargs):
+        GoHighEnv.__init__(self, **kwargs)
+
+    def act(self, action):
+        return self.action_space.from_index(action)
+
+    def step(self, actions):
+        if self.obs is not None:
+            self.prev_obs = deepcopy(self.obs)
+        
+        actions = [self.act(int(actions[pid])) for pid in [self.pid, 1-self.pid]]
+        obs = self.api.step(actions)
+        self.obs = obs
+        reward = self.compute_reward()
+        done = self.is_terminal()
+        infos = dict({'frame': self.obs.frame})
+
+        return self.embed_obs(obs), reward, done, infos
+
+
 class MinimalEmbedPlayer():
     def __init__(self):
         self.n = 3
