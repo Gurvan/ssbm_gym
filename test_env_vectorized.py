@@ -23,17 +23,23 @@ num_workers = 4
 
 # Required for vectorized envs
 if __name__ == "__main__":
+    print("Creating envs")
     env = EnvVec(SSBMEnv, num_workers, options=options)
+    print("Envs created")
+    print("Resetting envs")
     obs = env.reset()
+    print("Envs resetted")
     atexit.register(env.close)
 
     t = time.time()
     for i in range(1000):
         action = [random.randint(0, env.action_space.n - 1) for _ in range(num_workers)]
+        print("Sending actions")
         obs, reward, done, infos = env.step(action)
         try:
             print("FPS:", round(1/(time.time() - t)))
             print([o.players[0].x for o in obs])
-        except:
+        except Exception as e:
+            print(e)
             pass
         t = time.time()
