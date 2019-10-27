@@ -38,10 +38,10 @@ Here is a documentation of the different options.
 - stage: string, what stage to be played on. ['final_destination', 'battlefield'] have been tested, the others stages should work to (you can look in ssbm_gym/gen_code.py for a list).
 - player1: string, player1 type. ['ai', 'human', 'cpu']. 'ai' allows to send command through env.step, 'human' allows to play with a controller on the respective port, 'cpu' is game cpu.
 - player2: string, player1 type. ['ai', 'human', 'cpu']. 'ai' allows to send command through env.step, 'human' allows to play with a controller on the respective port, 'cpu' is game cpu.
--char1: string, player1 character. You can find the list in ssbm_gym/gen_code.py.
--char2: string, player2 character. You can find the list in ssbm_gym/gen_code.py.
--cpu1: int, player1 cpu level, if player1 is set to 'cpu'. [1-9]
--cpu2: int, player2 cpu level, if player2 is set to 'cpu'. [1-9]
+- char1: string, player1 character. You can find the list in ssbm_gym/gen_code.py.
+- char2: string, player2 character. You can find the list in ssbm_gym/gen_code.py.
+- cpu1: int, player1 cpu level, if player1 is set to 'cpu'. [1-9]
+- cpu2: int, player2 cpu level, if player2 is set to 'cpu'. [1-9]
 
 
 ## Tips
