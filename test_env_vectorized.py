@@ -5,7 +5,7 @@ import random
 import time
 
 options = dict(
-    render=True,
+    render=False,
     player1='ai',
     player2='cpu',
     char1='fox',
@@ -34,11 +34,10 @@ if __name__ == "__main__":
     t = time.time()
     for i in range(1000):
         action = [random.randint(0, env.action_space.n - 1) for _ in range(num_workers)]
-        print("Sending actions")
+        print("Sending actions", action)
         obs, reward, done, infos = env.step(action)
         try:
-            print("FPS:", round(1/(time.time() - t)))
-            print([o.players[0].x for o in obs])
+            print("FPS:", round(1/(time.time() - t)), "ActionState", [o[1] for o in obs])
         except Exception as e:
             print(e)
             pass
