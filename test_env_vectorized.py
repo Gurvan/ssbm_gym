@@ -37,7 +37,7 @@ if __name__ == "__main__":
         print("Sending actions", action)
         obs, reward, done, infos = env.step(action)
         try:
-            print("FPS:", round(1/(time.time() - t)), "ActionState", [o[1] for o in obs])
+            print("FPS:", round(1/(time.time() - t)), "ActionState", [o[0][1].index(1.0) for o in obs])
         except Exception as e:
             print(e)
             pass
