@@ -234,7 +234,7 @@ class DolphinRunner(Default):
 
     with open(configDir + '/GCPadNew.ini', 'w') as f:
       # print("generate pad: ", [i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'])
-      #f.write(generateGCPadNew([i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], not self.windows))
+      # f.write(generateGCPadNew([i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], not self.windows))
       f.write(generateGCPadNew([i for i, e in enumerate([self.player1, self.player2]) if e == 'ai'], 0))
 
     with open(configDir + '/Dolphin.ini', 'w') as f:
