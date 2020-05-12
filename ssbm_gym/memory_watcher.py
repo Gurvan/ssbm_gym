@@ -1,6 +1,7 @@
 import os
 import sys
 import socket
+import atexit
 import binascii
 from . import util
 
@@ -25,8 +26,8 @@ class MemoryWatcherZMQ:
       sys.exit("Need zmq installed.")
 
     self.pull = pull or port
-    context = zmq.Context()
-    self.socket = context.socket(zmq.PULL if self.pull else zmq.REP)
+    self.context = zmq.Context()
+    self.socket = self.context.socket(zmq.PULL if self.pull else zmq.REP)
     if path:
       self.socket.bind("ipc://" + path)
     elif port:
@@ -35,6 +36,7 @@ class MemoryWatcherZMQ:
       raise Exception("Must specify path or port.")
     
     self.messages = None
+    # atexit.register(self.cleanup)
   
   def get_messages(self):
     if self.messages is None:
@@ -48,6 +50,12 @@ class MemoryWatcherZMQ:
     if not self.pull:
       self.socket.send(b'')
     self.messages = None
+
+  def cleanup(self):
+    import zmq
+    self.socket.setsockopt(zmq.LINGER, 0)
+    self.socket.close()
+    self.context.term()
 
 class MemoryWatcher:
   """Reads and parses game memory changes.

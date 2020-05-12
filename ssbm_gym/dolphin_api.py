@@ -19,6 +19,7 @@ from . import ctype_util as ct
 import random
 from .default import *
 import functools
+import atexit
 
 class DolphinAPI(Default):
   _options = [
@@ -82,6 +83,7 @@ class DolphinAPI(Default):
     
     # print('Running dolphin.')
     self.dolphin_process = self.dolphin()
+    atexit.register(self.dolphin_process.kill)
 
     self.pads = self.get_pads()
 
